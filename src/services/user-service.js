@@ -1,7 +1,8 @@
 const UserRepository = require('../repository/user-repository');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const {JWT_KEY} = require('../config/serverConfig')
+const {JWT_KEY} = require('../config/serverConfig');
+const { response } = require('express');
 
 const userRepo = new UserRepository();
 class UserService {
@@ -36,6 +37,23 @@ class UserService {
             return newJWT;
         } catch (error) {
             console.log("Something went wrong in the signIn process");
+            throw error;
+        }
+    }
+
+    async isAuthenticated(token){
+        try {
+            const reponse = this.verifyToken(token);
+            if(!reponse){
+                throw {error: 'Invalid token'}
+            }
+            const user = this.userRepository.getById(response.id);
+            if(!user){
+                throw {error: 'No user with the corresponding token exists'};
+            }
+            return user.id;
+        } catch (error) {
+            console.log("something went wrong in the auth process");
             throw error;
         }
     }
